@@ -17,7 +17,6 @@ def get_special_loading():  # lookup the specified method to load model and toke
         'acegpt': load_acegpt,
     }
 
-
 def read_config_by_model_id(model_id: str) -> Tuple[str, DictConfig]:
     """Read the config in file by `model_id`, and Also Return the corresponding model_name"""
     if model_id is None:
@@ -41,12 +40,10 @@ def load_system_prompt(model_id: str) -> str:
     model_name, model_config = read_config_by_model_id(model_id)
     return model_config['prompt']
 
-
 def load_gconfig(generation_type: str='sample') -> GenerationConfig:
     """Load and Return GenerationConfig for the corresponding `model_id` and `generation_type`"""
     return GenerationConfig.from_pretrained("./gconfig", 
                                             config_file_name=f'{generation_type}.json')
-
 
 def load_model_and_tokenizer(model_id: str) -> Tuple[PreTrainedModel, Union[PreTrainedTokenizerFast, PreTrainedTokenizer]]:
     """Load and Return model and tokenizer by `model_id`"""
@@ -64,9 +61,9 @@ def load_model_and_tokenizer(model_id: str) -> Tuple[PreTrainedModel, Union[PreT
     if precision == 'int8':
         model = AutoModelForCausalLM.from_pretrained(config_dir, load_in_8bit=True, device_map="auto", trust_remote_code=True)
     elif precision == 'fp16':
-        model = AutoModelForCausalLM.from_pretrained(config_dir, torch_dtype=torch.float16, low_cpu_mem_usage=True, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(config_dir, torch_dtype=torch.float16, device_map="auto", trust_remote_code=True)
     elif precision == 'fp32':
-        model = AutoModelForCausalLM.from_pretrained(config_dir, low_cpu_mem_usage=True, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(config_dir, device_map="auto", trust_remote_code=True)
 
     tokenizer = AutoTokenizer.from_pretrained(config_dir, padding_side='left', trust_remote_code=True)
 
@@ -80,9 +77,9 @@ def load_llama(model_id):
     if precision == 'int8':
         model = AutoModelForCausalLM.from_pretrained(config_dir, load_in_8bit=True, device_map="auto", trust_remote_code=True)
     elif precision == 'fp16':
-        model = AutoModelForCausalLM.from_pretrained(config_dir, torch_dtype=torch.float16, low_cpu_mem_usage=True, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(config_dir, torch_dtype=torch.float16, device_map="auto", trust_remote_code=True)
     elif precision == 'fp32':
-        model = AutoModelForCausalLM.from_pretrained(config_dir, low_cpu_mem_usage=True, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(config_dir, device_map="auto", trust_remote_code=True)
 
     tokenizer = AutoTokenizer.from_pretrained(config_dir, padding_side='left', use_fast=False, trust_remote_code=True)
     tokenizer.add_special_tokens({
@@ -99,9 +96,6 @@ def load_llama(model_id):
     model.config.eos_token_id = tokenizer.eos_token_id
     return model_name, model, tokenizer
 
-
-
-
 def load_acegpt(model_id):
     model_name, model_config = read_config_by_model_id(model_id)
     config_dir = model_config['config_dir']
@@ -110,9 +104,9 @@ def load_acegpt(model_id):
     if precision == 'int8':
         model = AutoModelForCausalLM.from_pretrained(config_dir, load_in_8bit=True, device_map="auto", trust_remote_code=True)
     elif precision == 'fp16':
-        model = AutoModelForCausalLM.from_pretrained(config_dir, torch_dtype=torch.float16, low_cpu_mem_usage=True, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(config_dir, torch_dtype=torch.float16, device_map="auto", trust_remote_code=True)
     elif precision == 'fp32':
-        model = AutoModelForCausalLM.from_pretrained(config_dir, low_cpu_mem_usage=True, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(config_dir, device_map="auto", trust_remote_code=True)
 
     tokenizer = AutoTokenizer.from_pretrained(config_dir, padding_side='left', use_fast=False, trust_remote_code=True)
     if 'llama' in model_id.lower():
