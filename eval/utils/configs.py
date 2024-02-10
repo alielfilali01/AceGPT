@@ -9,7 +9,7 @@ import os
 import torch
 import json
 
-config = OmegaConf.load(f'mconfigs/config.yaml')
+config = OmegaConf.load('/content/AceGPT/eval/mconfigs/config.yaml')
 
 def get_special_loading():  # lookup the specified method to load model and tokenizer. it can be indexed by either model_id (prior) or model_name
     return {
@@ -61,30 +61,25 @@ def load_model_and_tokenizer(model_id: str) -> Tuple[PreTrainedModel, Union[PreT
     if loading_fn:
         return loading_fn(model_id)
 
-    if precision == 'fp16':
-        model = AutoModelForCausalLM.from_pretrained(config_dir, torch_dtype=torch.float16, low_cpu_mem_usage=True,
-                                                     trust_remote_code=True)
+    if precision == 'int8':
+        model = AutoModelForCausalLM.from_pretrained(config_dir, load_in_8bit=True, device_map="auto", trust_remote_code=True)
+    elif precision == 'fp16':
+        model = AutoModelForCausalLM.from_pretrained(config_dir, torch_dtype=torch.float16, low_cpu_mem_usage=True, trust_remote_code=True)
     elif precision == 'fp32':
         model = AutoModelForCausalLM.from_pretrained(config_dir, low_cpu_mem_usage=True, trust_remote_code=True)
 
-    tokenizer = AutoTokenizer.from_pretrained(config_dir, padding_side='left', 
-                                              trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(config_dir, padding_side='left', trust_remote_code=True)
 
     return model_name, model, tokenizer
-
-
-
-
-
-
-
 
 def load_llama(model_id):
     model_name, model_config = read_config_by_model_id(model_id)
     config_dir = model_config['config_dir']
     precision = model_config['precision']
 
-    if precision == 'fp16':
+    if precision == 'int8':
+        model = AutoModelForCausalLM.from_pretrained(config_dir, load_in_8bit=True, device_map="auto", trust_remote_code=True)
+    elif precision == 'fp16':
         model = AutoModelForCausalLM.from_pretrained(config_dir, torch_dtype=torch.float16, low_cpu_mem_usage=True, trust_remote_code=True)
     elif precision == 'fp32':
         model = AutoModelForCausalLM.from_pretrained(config_dir, low_cpu_mem_usage=True, trust_remote_code=True)
@@ -112,7 +107,9 @@ def load_acegpt(model_id):
     config_dir = model_config['config_dir']
     precision = model_config['precision']
 
-    if precision == 'fp16':
+    if precision == 'int8':
+        model = AutoModelForCausalLM.from_pretrained(config_dir, load_in_8bit=True, device_map="auto", trust_remote_code=True)
+    elif precision == 'fp16':
         model = AutoModelForCausalLM.from_pretrained(config_dir, torch_dtype=torch.float16, low_cpu_mem_usage=True, trust_remote_code=True)
     elif precision == 'fp32':
         model = AutoModelForCausalLM.from_pretrained(config_dir, low_cpu_mem_usage=True, trust_remote_code=True)
@@ -132,9 +129,3 @@ def load_acegpt(model_id):
         model.config.bos_token_id = tokenizer.bos_token_id
         model.config.eos_token_id = tokenizer.eos_token_id
     return model_name, model, tokenizer
-
-
-
-
-
-
