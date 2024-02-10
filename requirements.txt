@@ -6,3 +6,4 @@ sentencepiece
 gradio
 accelerate
 omegaconf
+bitsandbytes
